@@ -1,0 +1,11 @@
+# Python virtual environments
+.venv/
+.venv1/
+*.pyc
+__pycache__/
+*.db
+.idea/
+*.log
+.DS_Store
+*.swp
+*.swo

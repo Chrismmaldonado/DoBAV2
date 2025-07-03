@@ -1,0 +1,19 @@
+# Core dependencies
+numpy>=1.19.0
+requests>=2.25.0
+
+# GPU and ML dependencies
+# Note: PyTorch should be installed via the appropriate command for your GPU
+# For CPU: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# For CUDA: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# For ROCm: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
+
+# OCR dependencies
+pytesseract>=0.3.8
+Pillow>=8.0.0
+
+# Web search dependencies
+duckduckgo_search>=2.0.0
+
+# Optional: Speech recognition
+SpeechRecognition>=3.8.1
