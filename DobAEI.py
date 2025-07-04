@@ -16,7 +16,18 @@ from tkinter import scrolledtext, messagebox, simpledialog
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
 import numpy as np
-import requests
+try:
+    import requests
+    print("✅ Requests library available")
+except ImportError:
+    # Create a placeholder for requests if not available
+    class RequestsPlaceholder:
+        def get(*args, **kwargs):
+            raise Exception("Requests not installed - install with: pip install requests")
+        def post(*args, **kwargs):
+            raise Exception("Requests not installed - install with: pip install requests")
+    requests = RequestsPlaceholder()
+    print("⚠️ Requests not available - install with: pip install requests")
 
 # Try to import speech_recognition
 try:
@@ -11328,6 +11339,9 @@ class TrueConsensusBigAGI(tk.Tk):
         from sqlite_nuclear_memory import NUCLEAR_MEMORY as DEFAULT_NUCLEAR_MEMORY
         memory = nuclear_memory or DEFAULT_NUCLEAR_MEMORY
 
+        # Import re module here to ensure it's available in this scope
+        import re
+
         # Special case for "Remember this: You are DoBA" type statements
         text_lower = text.lower()
         if 'remember this' in text_lower and ('you are' in text_lower or 'your name' in text_lower or 'doba' in text_lower):
@@ -13075,7 +13089,13 @@ class TrueConsensusBigAGI(tk.Tk):
                     # Try to use pytesseract directly
                     try:
                         import pytesseract
-                        from PIL import ImageGrab
+                        try:
+                            from PIL import ImageGrab
+                        except ImportError:
+                            # If PIL is not available, use the placeholder
+                            if not hasattr(PIL, 'ImageGrab') or not PIL.ImageGrab:
+                                raise ImportError("PIL.ImageGrab not available")
+                            ImageGrab = PIL.ImageGrab
                         # numpy is already imported at the top of the file as np
 
                         # Check if pytesseract is installed
@@ -13090,7 +13110,13 @@ class TrueConsensusBigAGI(tk.Tk):
 
                             # Import again after installation
                             import pytesseract
-                            from PIL import ImageGrab
+                            try:
+                                from PIL import ImageGrab
+                            except ImportError:
+                                # If PIL is not available, use the placeholder
+                                if not hasattr(PIL, 'ImageGrab') or not PIL.ImageGrab:
+                                    raise ImportError("PIL.ImageGrab not available")
+                                ImageGrab = PIL.ImageGrab
                             # numpy is already imported at the top of the file as np
 
                             pytesseract_available = True
@@ -13101,7 +13127,13 @@ class TrueConsensusBigAGI(tk.Tk):
                     if pytesseract_available:
                         try:
                             # Import ImageGrab here to ensure it's defined
-                            from PIL import ImageGrab
+                            try:
+                                from PIL import ImageGrab
+                            except ImportError:
+                                # If PIL is not available, use the placeholder
+                                if not hasattr(PIL, 'ImageGrab') or not PIL.ImageGrab:
+                                    raise ImportError("PIL.ImageGrab not available")
+                                ImageGrab = PIL.ImageGrab
                             import pytesseract
 
                             # Capture screen
@@ -13289,6 +13321,21 @@ class TrueConsensusBigAGI(tk.Tk):
                     formatted_info += f"  OCR: {'Available' if 'pytesseract' in sys.modules else 'Not Available'}\n"
                     formatted_info += f"  System Control: Available\n"
 
+                    # Add capabilities information if available
+                    try:
+                        if 'capabilities' in info:
+                            caps = info['capabilities']
+                            formatted_info += "Capabilities:\n"
+                            for cap, available in caps.items():
+                                formatted_info += f"  {cap}: {'Available' if available else 'Not Available'}\n"
+                    except Exception as e:
+                        formatted_info = f"Failed to gather system information: {str(e)}"
+
+                    self.display_message("System Information", formatted_info, "info")
+
+                    # Add system info to chat history for context
+                    self.chat_history.append({"role": "system", "content": formatted_info})
+
                 except Exception as info_error:
                     # Fall back to DoBA_EXTENSIONS if available
                     if EXTENSIONS_AVAILABLE:
@@ -13321,21 +13368,23 @@ class TrueConsensusBigAGI(tk.Tk):
                             formatted_info += f"Disk:\n{info['disk']}\n\n"
 
                         # Add capabilities information
-try:
-    if 'capabilities' in info:
-        caps = info['capabilities']
-        formatted_info += "Capabilities:\n"
-        for cap, available in caps.items():
-            formatted_info += f"  {cap}: {'Available' if available else 'Not Available'}\n"
-except Exception as e:
-    formatted_info = f"Failed to gather system information: {str(e)}"
+                        try:
+                            if 'capabilities' in info:
+                                caps = info['capabilities']
+                                formatted_info += "Capabilities:\n"
+                                for cap, available in caps.items():
+                                    formatted_info += f"  {cap}: {'Available' if available else 'Not Available'}\n"
+                        except Exception as e:
+                            formatted_info = f"Failed to gather system information: {str(e)}"
 
-self.display_message("System Information", formatted_info, "info")
+                        self.display_message("System Information", formatted_info, "info")
 
-# Add system info to chat history for context
-self.chat_history.append({"role": "system", "content": formatted_info})
+                        # Add system info to chat history for context
+                        self.chat_history.append({"role": "system", "content": formatted_info})
 
-threading.Thread(target=info_thread, daemon=True).start()
+            threading.Thread(target=info_thread, daemon=True).start()
+        except Exception as e:
+            self.display_message("System", f"Failed to start system info thread: {str(e)}", "system")
 
     @staticmethod
     def _format_bytes(bytes_value):
@@ -13635,43 +13684,43 @@ threading.Thread(target=info_thread, daemon=True).start()
                 self.display_message("System", error_message, "system")
 
 if __name__ == "__main__":
-        # Check database support
-        try:
-            import sqlite3
-            print("✅ Database support available")
-        except ImportError:
-            # Create a placeholder for sqlite3
-            class FakeSQLite:
-                def connect(*args, **kwargs):
-                    raise Exception("SQLite not available")
-            sqlite3 = FakeSQLite()
-            print("❌ Database support not available")
+    # Check database support
+    try:
+        import sqlite3
+        print("✅ Database support available")
+    except ImportError:
+        # Create a placeholder for sqlite3
+        class FakeSQLite:
+            def connect(*args, **kwargs):
+                raise Exception("SQLite not available")
+        sqlite3 = FakeSQLite()
+        print("❌ Database support not available")
 
-        # Check embedding support
-        if EMBEDDINGS_AVAILABLE:
-            print("✅ Semantic embeddings available")
-        else:
-            print("⚠️ sentence-transformers not available. Install with: pip install sentence-transformers")
+    # Check embedding support
+    if EMBEDDINGS_AVAILABLE:
+        print("✅ Semantic embeddings available")
+    else:
+        print("⚠️ sentence-transformers not available. Install with: pip install sentence-transformers")
 
-        # DEBUG: START THE APP WITH ERROR HANDLING
-        print("🔍 About to initialize TrueConsensusBigAGI...")
+    # DEBUG: START THE APP WITH ERROR HANDLING
+    print("🔍 About to initialize TrueConsensusBigAGI...")
+    try:
+        app = TrueConsensusBigAGI()
+        print("🔍 App created successfully, starting mainloop...")
+        app.mainloop()
+    except Exception as app_error:
+        print(f"❌ App failed to start: {app_error}")
+        import traceback
+        traceback.print_exc()
+
+        # Try one more time with basic error handling
         try:
+            print("🔄 Attempting to restart with minimal configuration...")
             app = TrueConsensusBigAGI()
-            print("🔍 App created successfully, starting mainloop...")
             app.mainloop()
-        except Exception as app_error:
-            print(f"❌ App failed to start: {app_error}")
-            import traceback
+        except Exception as restart_error:
+            print(f"❌ Second attempt failed: {restart_error}")
             traceback.print_exc()
-
-            # Try one more time with basic error handling
-            try:
-                print("🔄 Attempting to restart with minimal configuration...")
-                app = TrueConsensusBigAGI()
-                app.mainloop()
-            except Exception as restart_error:
-                print(f"❌ Second attempt failed: {restart_error}")
-                traceback.print_exc()
 
 class SelfAwarenessEngine:
     def __init__(self):
