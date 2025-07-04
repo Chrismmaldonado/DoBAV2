@@ -95,18 +95,12 @@ try:
     STARTPAGE_AVAILABLE = True
     print("✅ Startpage search available")
 except ImportError:
-    # Create placeholders for required modules
-    class RequestsPlaceholder:
-        def get(*args, **kwargs):
-            raise Exception("Requests not installed - install with: pip install requests")
-
-        def post(*args, **kwargs):
-            raise Exception("Requests not installed - install with: pip install requests")
-
+    # Create placeholder for BeautifulSoup if not available
     class BeautifulSoupPlaceholder:
         def __init__(self, *args, **kwargs):
             raise Exception("BeautifulSoup not installed - install with: pip install beautifulsoup4")
 
+    # Use the RequestsPlaceholder class defined at the top of the file
     requests = RequestsPlaceholder()
     BeautifulSoup = BeautifulSoupPlaceholder
     STARTPAGE_AVAILABLE = False
