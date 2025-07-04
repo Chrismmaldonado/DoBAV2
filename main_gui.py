@@ -5250,8 +5250,9 @@ class AutonomousApp:
         text_escaped = text.replace("'", "''")
         ps_command = (
             f"Add-Type -AssemblyName System.Speech; "
-            f"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{text_escaped}')"
-        )
+            f"(New-Object 
+    System.Speech.Synthesis.SpeechSynthesizer).Speak('{text_escaped}')"
+    )
         subprocess.run(
             ["powershell", "-c", ps_command],
             check=False,
