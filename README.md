@@ -10,9 +10,12 @@ DoBA is an AI-powered document analysis and processing system that leverages GPU
 - Web search integration
 - Extensible architecture for custom plugins
 - Tokenized semantic keyword extraction (for highly accurate, and efficient memory)
+- Emotional context and memory
+- Autonomous self learning, self-deduplication of memory.
 - Customizable database
 - Infinite conversational storage
 - Locally ran, no internet required.
+
 
 ## System Requirements
 
