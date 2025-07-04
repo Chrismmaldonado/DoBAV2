@@ -13160,22 +13160,21 @@ class TrueConsensusBigAGI(tk.Tk):
                             formatted_info += f"Disk:\n{info['disk']}\n\n"
 
                         # Add capabilities information
-                        if 'capabilities' in info:
-                            caps = info['capabilities']
-                            formatted_info += "Capabilities:\n"
-                            for cap, available in caps.items():
-                                formatted_info += f"  {cap}: {'Available' if available else 'Not Available'}\n"
-                    else:
-                        formatted_info = f"Failed to gather system information: {str(e)}"
+try:
+    if 'capabilities' in info:
+        caps = info['capabilities']
+        formatted_info += "Capabilities:\n"
+        for cap, available in caps.items():
+            formatted_info += f"  {cap}: {'Available' if available else 'Not Available'}\n"
+except Exception as e:
+    formatted_info = f"Failed to gather system information: {str(e)}"
 
-                self.display_message("System Information", formatted_info, "info")
+self.display_message("System Information", formatted_info, "info")
 
-                # Add system info to chat history for context
-                self.chat_history.append({"role": "system", "content": formatted_info})
+# Add system info to chat history for context
+self.chat_history.append({"role": "system", "content": formatted_info})
 
-            threading.Thread(target=info_thread, daemon=True).start()
-        except Exception as system_info_error:
-            self.display_message("System", f"Failed to get system information: {str(system_info_error)}", "system")
+threading.Thread(target=info_thread, daemon=True).start()
 
     @staticmethod
     def _format_bytes(bytes_value):
