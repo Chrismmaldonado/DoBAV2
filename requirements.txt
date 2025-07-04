@@ -1,6 +1,7 @@
 # Core dependencies
-numpy>=1.19.0
+numpy>=1.19.0,<2.0
 requests>=2.25.0
+beautifulsoup4>=4.9.0
 
 # GPU and ML dependencies
 # Note: PyTorch should be installed via the appropriate command for your GPU

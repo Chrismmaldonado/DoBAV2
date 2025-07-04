@@ -97,6 +97,28 @@ If you don't have a compatible GPU or prefer not to use GPU acceleration:
 - Select the "No GPU support" option during installation
 - The system will use CPU-only mode for all operations
 
+## LM Studio Configuration
+
+DoBA uses LM Studio for model selection and inference. Follow these steps to set up LM Studio:
+
+1. Download and install LM Studio from [https://lmstudio.ai/](https://lmstudio.ai/)
+
+2. Launch LM Studio and ensure it's running on port 1234 (the default port)
+
+3. Download and set up at least one model in LM Studio
+
+4. Start the local server in LM Studio by clicking on the "Local Server" tab and then "Start Server"
+
+5. By default, DoBA will connect to LM Studio at `http://localhost:1234`. If your LM Studio is running on a different machine or port, you can configure the connection by:
+   - Editing the launcher scripts (launch_doba.sh or launch_gpu.sh)
+   - Uncommenting and modifying the LM Studio API endpoint lines:
+     ```bash
+     # export LMSTUDIO_API="http://your-lmstudio-server:1234/v1/chat/completions"
+     # export LMSTUDIO_MODELS_API="http://your-lmstudio-server:1234/v1/models"
+     ```
+
+6. When you launch DoBA, it should now be able to connect to LM Studio and display the available models in the model selection dropdown
+
 ## Troubleshooting
 
 If you encounter any issues:
@@ -115,6 +137,14 @@ If you encounter any issues:
 4. If you encounter conflicts between CUDA and ROCm, you may need to uninstall one before installing the other. The installation script will guide you through this process.
 
 5. If the copy script fails, you can manually copy the files from the source directory to your current project directory.
+
+6. If you're having issues with model selection:
+   - Make sure LM Studio is running and the server is started
+   - Check that you can access the LM Studio API at http://localhost:1234/v1/models in your browser
+   - If using a remote LM Studio server, ensure the server is accessible from your machine
+   - If the model dropdown is blank, try clicking the "Refresh Models" button
+   - If models still don't appear, check the Debug tab for error messages
+   - The application will use placeholder models if it can't connect to LM Studio
 
 ## Contributing
 

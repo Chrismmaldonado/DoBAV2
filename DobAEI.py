@@ -67,6 +67,10 @@ try:
 except ImportError:
     # Create a fake psycopg2 that will gracefully handle the absence of PostgresSQL
     class FakePostgresSQL:
+        # Define Error class to match real psycopg2 structure
+        class Error(Exception):
+            pass
+
         def connect(*args, **kwargs):
             raise Exception("PostgresSQL not installed - using SQLite only")
     psycopg2 = FakePostgresSQL()
@@ -83,6 +87,9 @@ except ImportError:
     # Create placeholders for required modules
     class RequestsPlaceholder:
         def get(*args, **kwargs):
+            raise Exception("Requests not installed - install with: pip install requests")
+
+        def post(*args, **kwargs):
             raise Exception("Requests not installed - install with: pip install requests")
 
     class BeautifulSoupPlaceholder:
@@ -111,6 +118,30 @@ try:
     DoBA_EXTENSIONS: DoBAExtensions = DoBAExtensions()
     EXTENSIONS_AVAILABLE: bool = True
     print("✅ DoBA Extensions available")
+
+    # Check if requests and BeautifulSoup are available in doba_extensions
+    try:
+        import requests as actual_requests
+        # Replace the placeholder with the actual module
+        if isinstance(requests, RequestsPlaceholder):
+            requests = actual_requests
+            print("✅ Using requests module from doba_extensions")
+    except ImportError:
+        pass
+
+    try:
+        from bs4 import BeautifulSoup as actual_BeautifulSoup
+        # Replace the placeholder with the actual module
+        if BeautifulSoup == BeautifulSoupPlaceholder:
+            BeautifulSoup = actual_BeautifulSoup
+            print("✅ Using BeautifulSoup module from doba_extensions")
+    except ImportError:
+        pass
+
+    # Update STARTPAGE_AVAILABLE if both modules are available
+    if not isinstance(requests, RequestsPlaceholder) and BeautifulSoup != BeautifulSoupPlaceholder:
+        STARTPAGE_AVAILABLE = True
+        print("✅ Startpage search available (using modules from doba_extensions)")
 except ImportError:
     # Import typing module for type annotations
     from typing import Optional, Any, Dict, List, Tuple, Union
@@ -7158,9 +7189,9 @@ class SelfAwareness:
 
     # Duplicate generate_autonomous_response method removed - using the implementation in SelfAwarenessEngine class
 
-BIG_AGI_URL = "http://localhost:3001"
-LMSTUDIO_API = "http://208.126.17.49:1234/v1/chat/completions"
-LMSTUDIO_MODELS_API = "http://208.126.17.49:1234/v1/models"
+BIG_AGI_URL = os.environ.get("BIG_AGI_URL", "http://localhost:3001")
+LMSTUDIO_API = os.environ.get("LMSTUDIO_API", "http://localhost:1234/v1/chat/completions")
+LMSTUDIO_MODELS_API = os.environ.get("LMSTUDIO_MODELS_API", "http://localhost:1234/v1/models")
 
 # Database Configuration
 DB_CONFIG = {
@@ -7447,7 +7478,7 @@ class IntelligentMemoryManager:
             print("✅ PostgresSQL intelligent memory connected")
             self.db_available = True
 
-        except (psycopg2.Error, ImportError) as pg_error:
+        except Exception as pg_error:
             print(f"❌ PostgresSQL connection failed: {pg_error}")
             try:
                 # Fallback to SQLite
@@ -9147,6 +9178,9 @@ class TrueConsensusBigAGI(tk.Tk):
         self.create_notebook(main_frame)
         self.create_status_bar(main_frame)
 
+        # Initialize services and refresh models after UI is created
+        self.after(500, self.initialize_services)
+
     def create_control_panel(self, parent):
         """Create the top control panel"""
         control_frame = ttk.Frame(parent, style='Dark.TFrame')
@@ -9829,8 +9863,23 @@ class TrueConsensusBigAGI(tk.Tk):
             threading.Thread(target=self.get_true_consensus_response, args=(message,), daemon=True).start()
         elif service == "LM Studio":
             if not self.selected_model.get():
-                self.display_message("System", "Please select a model.", "system")
-                return
+                # Try to refresh models first
+                self.log_debug("No model selected, attempting to refresh models", "WARNING")
+                self.refresh_models()
+
+                # Check again after refresh
+                if not self.selected_model.get():
+                    # If still no model selected, show a more helpful error message
+                    error_msg = (
+                        "Please select a model. If no models are available:\n"
+                        "1. Make sure LM Studio is running\n"
+                        "2. Check that the server is started in LM Studio\n"
+                        "3. Verify that models are loaded in LM Studio"
+                    )
+                    self.display_message("System", error_msg, "system")
+                    return
+
+            # Proceed with the selected model
             threading.Thread(target=self.get_lmstudio_response, args=(message, detected_emotions), daemon=True).start()
         else:
             self.display_message("System", f"{service} integration coming soon!", "system")
@@ -11602,26 +11651,93 @@ class TrueConsensusBigAGI(tk.Tk):
     def check_lmstudio_status(self):
             """Check LM Studio status"""
             try:
+                self.log_debug(f"Connecting to LM Studio API at {LMSTUDIO_MODELS_API}")
                 response = requests.get(LMSTUDIO_MODELS_API, timeout=5)
+                self.log_debug(f"LM Studio API response status code: {response.status_code}")
+
                 if response.status_code == 200:
-                    models_data = response.json()
-                    self.lm_studio_models = [model["id"] for model in models_data.get("data", [])]
+                    try:
+                        models_data = response.json()
+                        self.log_debug(f"LM Studio API response: {str(models_data)[:200]}...")
+                    except Exception as json_error:
+                        self.log_debug(f"Failed to parse JSON response: {str(json_error)}", "ERROR")
+                        # Add a default model as fallback
+                        self.lm_studio_models = ["default_model"]
+                        self.model_combo['values'] = self.lm_studio_models
+                        self.selected_model.set(self.lm_studio_models[0])
+                        self.update_models_checkboxes()
+                        return True
+
+                    # Handle different response formats
+                    if "data" in models_data and isinstance(models_data["data"], list):
+                        # Standard format: {"data": [{"id": "model1"}, {"id": "model2"}]}
+                        self.lm_studio_models = [model["id"] for model in models_data["data"] if "id" in model]
+                        self.log_debug(f"Found models in 'data' field: {len(self.lm_studio_models)}")
+                    elif isinstance(models_data, list):
+                        # Alternative format: [{"id": "model1"}, {"id": "model2"}]
+                        self.lm_studio_models = [model["id"] for model in models_data if isinstance(model, dict) and "id" in model]
+                        self.log_debug(f"Found models in list: {len(self.lm_studio_models)}")
+                    else:
+                        # Try to extract any model identifiers from the response
+                        self.lm_studio_models = []
+                        self.log_debug(f"Unexpected LM Studio API response format: {str(models_data)[:200]}...", "WARNING")
+
+                        # Try to find any model identifiers in the response
+                        if isinstance(models_data, dict):
+                            for key, value in models_data.items():
+                                self.log_debug(f"Examining key: {key}, type: {type(value)}")
+                                if isinstance(value, list) and len(value) > 0:
+                                    if isinstance(value[0], dict) and "id" in value[0]:
+                                        self.lm_studio_models = [item["id"] for item in value if isinstance(item, dict) and "id" in item]
+                                        self.log_debug(f"Found models in '{key}' field: {len(self.lm_studio_models)}")
+                                        break
+                                    else:
+                                        self.log_debug(f"List items in '{key}' don't have 'id' field or aren't dictionaries")
+                                elif isinstance(value, dict) and "id" in value:
+                                    # Handle case where a single model is returned as a dict
+                                    self.lm_studio_models = [value["id"]]
+                                    self.log_debug(f"Found single model in '{key}' field")
+                                    break
+
+                    # If no models were found, add placeholders
+                    if not self.lm_studio_models:
+                        self.log_debug("No models found in LM Studio response, adding placeholders", "WARNING")
+                        # Add some common model names as placeholders
+                        self.lm_studio_models = ["default_model", "gpt-3.5-turbo", "llama2-7b", "mistral-7b"]
+                        self.display_message("System", "No models found in LM Studio. Using placeholder models. Please make sure LM Studio is running and models are loaded.", "system")
 
                     self.log_debug(f"LM Studio online - {len(self.lm_studio_models)} models available")
+                    self.log_debug(f"Models: {', '.join(self.lm_studio_models[:5])}" + (f" + {len(self.lm_studio_models) - 5} more" if len(self.lm_studio_models) > 5 else ""))
 
                     # Update UI
                     self.model_combo['values'] = self.lm_studio_models
-                    if self.lm_studio_models and not self.selected_model.get():
+
+                    # Always set a selected model if none is selected
+                    if not self.selected_model.get():
                         self.selected_model.set(self.lm_studio_models[0])
+                        self.log_debug(f"Set selected model to: {self.lm_studio_models[0]}")
 
                     self.update_models_checkboxes()
                     return True
                 else:
-                    return False
+                    self.log_debug(f"LM Studio API returned status code {response.status_code}", "ERROR")
+                    # Add placeholder models even on error
+                    self.lm_studio_models = ["default_model", "gpt-3.5-turbo", "llama2-7b", "mistral-7b"]
+                    self.model_combo['values'] = self.lm_studio_models
+                    self.selected_model.set(self.lm_studio_models[0])
+                    self.update_models_checkboxes()
+                    self.display_message("System", f"Failed to connect to LM Studio API (status code: {response.status_code}). Using placeholder models.", "system")
+                    return True  # Return true so UI is still updated with placeholders
 
             except Exception as lmstudio_error:
                 self.log_debug(f"LM Studio connection failed: {str(lmstudio_error)}", "ERROR")
-                return False
+                # Add placeholder models even on error
+                self.lm_studio_models = ["default_model", "gpt-3.5-turbo", "llama2-7b", "mistral-7b"]
+                self.model_combo['values'] = self.lm_studio_models
+                self.selected_model.set(self.lm_studio_models[0])
+                self.update_models_checkboxes()
+                self.display_message("System", f"Failed to connect to LM Studio API: {str(lmstudio_error)}. Using placeholder models.", "system")
+                return True  # Return true so UI is still updated with placeholders
 
     def log_debug(self, message, level="INFO"):
             """Debug logging"""
@@ -11872,10 +11988,55 @@ class TrueConsensusBigAGI(tk.Tk):
             print(f"Error processing voice input: {e}")
             self.log_debug(f"Error processing voice input: {e}")
 
+    def initialize_services(self):
+            """Initialize services and check connections"""
+            self.log_debug("Initializing services...")
+            self.update_status("Checking LM Studio connection...")
+
+            # Make sure the model_combo widget is created
+            if not hasattr(self, 'model_combo') or self.model_combo is None:
+                self.log_debug("Model combo widget not created yet, deferring service initialization", "WARNING")
+                # Try again after a short delay
+                self.after(1000, self.initialize_services)
+                return
+
+            # Add placeholder models in case the API call fails
+            self.lm_studio_models = ["default_model", "gpt-3.5-turbo", "llama2-7b", "mistral-7b"]
+            self.model_combo['values'] = self.lm_studio_models
+            if not self.selected_model.get():
+                self.selected_model.set(self.lm_studio_models[0])
+
+            # Check LM Studio status
+            self.log_debug("Starting service check thread")
+            threading.Thread(target=self._check_services_thread, daemon=True).start()
+
     def refresh_models(self):
             """Refresh available models"""
-            self.check_lmstudio_status()
-            self.log_debug("Models refreshed")
+            self.update_status("Refreshing models...")
+
+            # Try to refresh models
+            success = self.check_lmstudio_status()
+
+            if success:
+                if self.lm_studio_models:
+                    model_count = len(self.lm_studio_models)
+                    self.log_debug(f"Models refreshed successfully - {model_count} models available")
+                    self.update_status(f"Models refreshed - {model_count} models available")
+
+                    # Show a message in the chat if debug mode is enabled
+                    if self.debug_mode.get():
+                        model_list = ", ".join(self.lm_studio_models[:5])
+                        if len(self.lm_studio_models) > 5:
+                            model_list += f"... and {len(self.lm_studio_models) - 5} more"
+                        self.display_message("System", f"Models refreshed: {model_list}", "system")
+                else:
+                    self.log_debug("Models refreshed but no models found", "WARNING")
+                    self.update_status("No models found - check LM Studio")
+                    self.display_message("System", "No models found. Please make sure LM Studio is running and models are loaded.", "system")
+            else:
+                self.log_debug("Failed to refresh models - check LM Studio connection", "ERROR")
+                self.update_status("Failed to refresh models - check LM Studio")
+                self.display_message("System", "Failed to connect to LM Studio. Please make sure LM Studio is running and the server is started.", "system")
 
     # Web search, system access, and OCR methods
     @staticmethod

@@ -59,7 +59,8 @@ apt-get install -y \
   build-essential \
   git \
   curl \
-  wget
+  wget \
+  libgomp1
 
 # Install Tesseract OCR
 echo "Installing Tesseract OCR..."
@@ -218,7 +219,7 @@ pip install duckduckgo_search
 
 # Install other required packages
 echo "Installing other required packages..."
-pip install requests numpy
+pip install requests beautifulsoup4 "numpy<2.0" screeninfo
 
 # Check if all installations were successful
 if [ -z "$FAILED_PACKAGES" ]; then

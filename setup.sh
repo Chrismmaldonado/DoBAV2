@@ -224,7 +224,7 @@ pip install duckduckgo_search
 
 # Install other required packages
 echo "Installing other required packages..."
-pip install requests numpy
+pip install requests beautifulsoup4 "numpy<2.0"
 
 # Create launcher scripts
 echo "Creating launcher scripts..."

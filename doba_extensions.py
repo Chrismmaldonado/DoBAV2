@@ -6070,6 +6070,7 @@ def check_dependencies() -> Dict[str, bool]:
         "duckduckgo_search": WEB_SEARCH_AVAILABLE,
         "pyautogui": CONTROL_AVAILABLE,
         "torch": ROCm_AVAILABLE,
+        "screeninfo": MULTI_MONITOR_AVAILABLE,
         "subprocess": True  # Always available in standard library
     }
 
@@ -6137,6 +6138,18 @@ def install_dependencies() -> Dict[str, bool]:
             results["rocm"] = False
     else:
         results["rocm"] = True
+
+    # Check and install screeninfo for multi-monitor support
+    if not MULTI_MONITOR_AVAILABLE:
+        print("Installing multi-monitor support dependencies...")
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "install", "screeninfo"], check=True)
+            results["multi_monitor"] = True
+        except Exception as e:
+            print(f"Failed to install multi-monitor support dependencies: {e}")
+            results["multi_monitor"] = False
+    else:
+        results["multi_monitor"] = True
 
     return results
 

@@ -20,8 +20,9 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        "numpy>=1.19.0",
+        "numpy>=1.19.0,<2.0",
         "requests>=2.25.0",
+        "beautifulsoup4>=4.9.0",
         "pytesseract>=0.3.8",
         "Pillow>=8.0.0",
         "duckduckgo_search>=2.0.0",
