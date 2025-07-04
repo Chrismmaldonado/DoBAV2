@@ -12427,8 +12427,7 @@ class TrueConsensusBigAGI(tk.Tk):
         Returns:
             list: Search results or None if search failed
         """
-        global STARTPAGE_AVAILABLE
-
+        # No need for global declaration if you're only reading the variable
         if not STARTPAGE_AVAILABLE:
             return None
 
@@ -12554,7 +12553,7 @@ class TrueConsensusBigAGI(tk.Tk):
             Search results as text (in auto_mode) or None
         """
         # Declare global variable at the beginning of the function
-        global STARTPAGE_AVAILABLE, EXTENSIONS_AVAILABLE
+        global STARTPAGE_AVAILABLE  # Only declare the variable you're modifying
         # Use the global variable for Startpage availability
         startpage_available = STARTPAGE_AVAILABLE
 
@@ -12733,7 +12732,7 @@ class TrueConsensusBigAGI(tk.Tk):
 
         def process_search_results(*args):
             """Process search results and update UI"""
-            nonlocal result_queue
+            # No need for nonlocal declaration if you're only reading the variable
 
             try:
                 # Get results from the queue

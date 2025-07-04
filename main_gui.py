@@ -5244,26 +5244,25 @@ class AutonomousApp:
                     print(f"⚠️ SYSTEM TTS: say command failed: {e}")
 
             elif sys.platform.startswith('win'):
-    # Try PowerShell (Windows)
-    try:
-        print("🔊 SYSTEM TTS: Trying PowerShell speech synthesis...")
-        text_escaped = text.replace("'", "''")
-        ps_command = (
-            f"Add-Type -AssemblyName System.Speech; "
-            f"(New-Object 
-    System.Speech.Synthesis.SpeechSynthesizer).Speak('{text_escaped}')"
-    )
-        subprocess.run(
-            ["powershell", "-c", ps_command],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=10
-        )
-        print("✅ SYSTEM TTS: PowerShell speech synthesis executed")
-        success = True
-    except Exception as e:
-        print(f"⚠️ SYSTEM TTS: PowerShell speech synthesis failed: {e}")
+                # Try PowerShell (Windows)
+                try:
+                    print("🔊 SYSTEM TTS: Trying PowerShell speech synthesis...")
+                    text_escaped = text.replace("'", "''")
+                    ps_command = (
+                        f"Add-Type -AssemblyName System.Speech; "
+                        f"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{text_escaped}')"
+                    )
+                    subprocess.run(
+                        ["powershell", "-c", ps_command],
+                        check=False,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        timeout=10
+                    )
+                    print("✅ SYSTEM TTS: PowerShell speech synthesis executed")
+                    success = True
+                except Exception as e:
+                    print(f"⚠️ SYSTEM TTS: PowerShell speech synthesis failed: {e}")
 
             return success
 
