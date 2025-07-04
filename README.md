@@ -5,10 +5,14 @@ DoBA is an AI-powered document analysis and processing system that leverages GPU
 ## Features
 
 - GPU-accelerated AI processing (supports both NVIDIA and AMD GPUs)
-- Document analysis and text extraction
+- Document analysis and text extraction (through OCR and Search functions; MAY BE A BIT BUGGY FYI)
 - OCR (Optical Character Recognition) capabilities
 - Web search integration
 - Extensible architecture for custom plugins
+- Tokenized semantic keyword extraction (for highly accurate, and efficient memory)
+- Customizable database
+- Infinite conversational storage
+- Locally ran, no internet required.
 
 ## System Requirements
 
