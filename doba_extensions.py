@@ -26,6 +26,7 @@ from typing import List, Dict, Any, Optional, Union, Tuple
 # For OCR functionality
 try:
     import pytesseract
+    import PIL
     import PIL.Image
     import PIL.ImageGrab
     import numpy as np
@@ -33,6 +34,17 @@ try:
     print("✅ OCR support available")
 except ImportError:
     OCR_AVAILABLE = False
+    # Create a placeholder module structure for PIL if not available
+    class PILPlaceholder:
+        pass
+
+    class PILModule:
+        class Image:
+            class Image:
+                pass
+        ImageGrab = PILPlaceholder()
+
+    PIL = PILModule()
     print("⚠️ OCR support not available - install pytesseract and Pillow")
 
 # For keyboard and mouse control

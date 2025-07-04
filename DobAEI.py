@@ -16,16 +16,19 @@ from tkinter import scrolledtext, messagebox, simpledialog
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
 import numpy as np
+
+# Define RequestsPlaceholder globally so it can be accessed from anywhere in the file
+class RequestsPlaceholder:
+    def get(*args, **kwargs):
+        raise Exception("Requests not installed - install with: pip install requests")
+    def post(*args, **kwargs):
+        raise Exception("Requests not installed - install with: pip install requests")
+
 try:
     import requests
     print("✅ Requests library available")
 except ImportError:
     # Create a placeholder for requests if not available
-    class RequestsPlaceholder:
-        def get(*args, **kwargs):
-            raise Exception("Requests not installed - install with: pip install requests")
-        def post(*args, **kwargs):
-            raise Exception("Requests not installed - install with: pip install requests")
     requests = RequestsPlaceholder()
     print("⚠️ Requests not available - install with: pip install requests")
 
@@ -88,6 +91,11 @@ except ImportError:
     POSTGRES_AVAILABLE = False
     print("⚠️ PostgresSQL not available - using SQLite for all storage")
 
+# Define BeautifulSoupPlaceholder globally so it can be accessed from anywhere in the file
+class BeautifulSoupPlaceholder:
+    def __init__(self, *args, **kwargs):
+        raise Exception("BeautifulSoup not installed - install with: pip install beautifulsoup4")
+
 # Try to import required packages for Startpage search
 try:
     import requests
@@ -95,11 +103,6 @@ try:
     STARTPAGE_AVAILABLE = True
     print("✅ Startpage search available")
 except ImportError:
-    # Create placeholder for BeautifulSoup if not available
-    class BeautifulSoupPlaceholder:
-        def __init__(self, *args, **kwargs):
-            raise Exception("BeautifulSoup not installed - install with: pip install beautifulsoup4")
-
     # Use the RequestsPlaceholder class defined at the top of the file
     requests = RequestsPlaceholder()
     BeautifulSoup = BeautifulSoupPlaceholder
