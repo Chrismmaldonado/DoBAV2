@@ -1,4 +1,4 @@
-# DoBA (Document-Based AI) Project
+# DoBA (TKinter Based AI) Project
 
 DoBA is an AI-powered document analysis and processing system that leverages GPU acceleration for enhanced performance. This repository contains all the necessary scripts to set up and run the DoBA project on various hardware configurations.
 
