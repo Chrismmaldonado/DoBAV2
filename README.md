@@ -1,6 +1,6 @@
 # DoBA (TKinter Based) AI Project
 
-DoBA is an AI-powered document analysis and processing system that leverages GPU acceleration for enhanced performance. This repository contains all the necessary scripts to set up and run the DoBA project on various hardware configurations.
+DoBA is an autonomously configured AI ran in TKinter, that allows you to build a conversation and store it locally on your system. DoBA was designed primary by AI (hint at the name, Designed only By AI). This AI can be ran with any model, and can be ran through any API service (not just LM studio). This AI aims for TRUE autonomy, relying on tokenized keyword extraction via RAG. 
 
 ## Features
 
