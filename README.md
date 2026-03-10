@@ -1,162 +1,141 @@
+arkdown
+
 # DoBA (TKinter Based) AI Project
 
-DoBA is an autonomously configured AI ran in TKinter, that allows you to build a conversation and store it locally on your system. DoBA was designed primary by AI (hint at the name, Designed only By AI). This AI can be ran with any model, and can be ran through any API service (not just LM studio). This AI aims for TRUE autonomy, relying on tokenized keyword extraction via RAG. 
+DoBA is an AI program that runs in TKinter and allows you to create conversations and save them locally on your system. It was mainly designed by AI (the name hints at that). You can run this AI with any model and through any API service, not just LM Studio. The goal of this AI is to achieve true independence by using tokenized keyword extraction through RAG.
+
+---
 
 ## Features
 
-- GPU-accelerated AI processing (supports both NVIDIA and AMD GPUs)
-- Document analysis and text extraction (through OCR and Search functions; MAY BE A BIT BUGGY FYI)
-- OCR (Optical Character Recognition) capabilities
-- Web search integration
-- Extensible architecture for custom plugins
-- Tokenized semantic keyword extraction (for highly accurate, and efficient memory)
-- Emotional context and memory
-- Autonomous self learning, self-deduplication of memory.
-- Customizable database
-- Infinite conversational storage
-- Locally ran, no internet required.
+* **GPU-accelerated AI processing:** Compatible with NVIDIA and AMD GPUs.
+* **Document analysis and text extraction:** Using OCR and search functions.
+* **OCR (Optical Character Recognition):** Capabilities for reading text from images.
+* **Web search integration:** Access to external information.
+* **Custom plugins:** Extensible framework for adding new functionality.
+* **Tokenized semantic keyword extraction:** Used for effective memory retrieval.
+* **Emotional context:** Tracks and utilizes emotional history.
+* **Self-learning:** Includes self-deduplication of memory entries.
+* **Customizable database:** Flexible storage options.
+* **Unlimited conversation storage:** Runs locally with no internet needed for operation.
 
+---
 
 ## System Requirements
 
-- Linux-based operating system (Ubuntu 20.04 or later recommended)
-- Python 3.8 or later
-- For GPU acceleration:
-  - NVIDIA GPU with CUDA support, OR
-  - AMD GPU with ROCm support
-  - CPU-only mode is also supported for systems without compatible GPUs
+* **Operating System:** Linux-based (Ubuntu 20.04 or later recommended).
+* **Python:** Version 3.8 or later.
+* **GPU Acceleration (Optional):**
+    * NVIDIA GPU with CUDA support.
+    * AMD GPU with ROCm support.
+    * CPU-only mode is supported for systems without compatible GPUs.
+
+---
 
 ## Installation
 
 ### One-Step Setup (Recommended)
 
-1. Make the setup script executable:
-   ```
+1. **Make the setup script executable:**
+   ```sh
    chmod +x setup.sh
-   ```
+Run the setup script:
 
-2. Run the setup script:
-   ```
-   sudo ./setup.sh
-   ```
-   This will:
-   - Detect your OS and install basic dependencies
-   - Auto-detect your GPU type and suggest the appropriate option
-   - Allow you to choose between AMD ROCm, NVIDIA CUDA, or CPU-only mode
-   - Install the selected GPU platform and required dependencies
-   - Install Python packages with the appropriate GPU support
-   - Create launcher scripts optimized for your selected platform
+Bash
 
-### Alternative Setup (Manual)
+sudo ./setup.sh
+The script will:
 
-If you prefer a more manual approach, you can use the individual scripts:
+Detect your OS and install basic dependencies.
 
-1. Make the copy script executable:
-   ```
-   chmod +x copy_doba_files.sh
-   ```
+Auto-detect your GPU type and suggest the right option.
 
-2. Run the copy script:
-   ```
-   ./copy_doba_files.sh
-   ```
-   This will:
-   - Copy all DoBA project files to your current directory
-   - Create a Python virtual environment (.venv)
-   - Detect your GPU type and create appropriate launcher scripts
+Allow you to choose between AMD ROCm, NVIDIA CUDA, or CPU-only mode.
 
-3. Install dependencies:
-   ```
-   sudo ./install_dependencies.sh
-   ```
-   This will:
-   - Prompt you to choose between AMD ROCm, NVIDIA CUDA, or CPU-only mode
-   - Install the selected GPU platform and required dependencies
-   - Install Python packages with the appropriate GPU support
-   - Create launcher scripts optimized for your selected platform
+Install Python packages with the correct GPU support.
 
-4. Run the DoBA application:
-   ```
-   ./launch_doba.sh
-   ```
-   or
-   ```
-   ./launch_gpu.sh
-   ```
-   Both scripts are identical and will run the application with the appropriate GPU configuration.
+Create optimized launcher scripts.
 
-### GPU Support Details
+Alternative Setup (Manual)
+Make the copy script executable:
 
-#### NVIDIA GPUs
-If you have an NVIDIA GPU, the installation script will:
-- Install CUDA drivers and toolkit
-- Configure PyTorch with CUDA support
-- Create launcher scripts with NVIDIA-specific optimizations
+Bash
 
-#### AMD GPUs
-If you have an AMD GPU, the installation script will:
-- Install ROCm drivers and libraries
-- Configure PyTorch with ROCm support
-- Create launcher scripts with AMD-specific optimizations
+chmod +x copy_doba_files.sh
+Run the copy script:
 
-#### CPU-only Mode
-If you don't have a compatible GPU or prefer not to use GPU acceleration:
-- Select the "No GPU support" option during installation
-- The system will use CPU-only mode for all operations
+Bash
 
-## LM Studio Configuration
+./copy_doba_files.sh
+Copies files, creates a virtual environment (.venv), and detects GPU.
 
-DoBA uses LM Studio for model selection and inference. Follow these steps to set up LM Studio:
+Install dependencies:
 
-1. Download and install LM Studio from [https://lmstudio.ai/](https://lmstudio.ai/)
+Bash
 
-2. Launch LM Studio and ensure it's running on port 1234 (the default port)
+sudo ./install_dependencies.sh
+Follow the prompts for your specific hardware (NVIDIA/AMD/CPU).
 
-3. Download and set up at least one model in LM Studio
+Run the DoBA application:
 
-4. Start the local server in LM Studio by clicking on the "Local Server" tab and then "Start Server"
+Bash
 
-5. By default, DoBA will connect to LM Studio at `http://localhost:1234`. If your LM Studio is running on a different machine or port, you can configure the connection by:
-   - Editing the launcher scripts (launch_doba.sh or launch_gpu.sh)
-   - Uncommenting and modifying the LM Studio API endpoint lines:
-     ```bash
-     # export LMSTUDIO_API="http://your-lmstudio-server:1234/v1/chat/completions"
-     # export LMSTUDIO_MODELS_API="http://your-lmstudio-server:1234/v1/models"
-     ```
+./launch_doba.sh
+or
 
-6. When you launch DoBA, it should now be able to connect to LM Studio and display the available models in the model selection dropdown
+Bash
 
-## Troubleshooting
+./launch_gpu.sh
+GPU Support Details
+NVIDIA GPUs
+The installation script will install CUDA drivers and toolkit, configure PyTorch with CUDA support, and apply NVIDIA-specific optimizations.
 
-If you encounter any issues:
+AMD GPUs
+The installation script will install ROCm drivers and libraries, configure PyTorch with ROCm support, and apply AMD-specific optimizations.
 
-1. Make sure you have Python 3 installed:
-   ```
-   python3 --version
-   ```
+CPU-only Mode
+If you lack a compatible GPU, choose the "No GPU support" option. The system will use CPU-only mode for all tasks.
 
-2. Ensure you have the necessary permissions to create files and directories in your current location.
+LM Studio Configuration
+DoBA uses LM Studio for selecting and running models.
 
-3. For GPU-related issues:
-   - NVIDIA: Run `nvidia-smi` to verify that your GPU is detected
-   - AMD: Run `rocminfo` to verify that your GPU is detected
+Download and install LM Studio from https://lmstudio.ai/.
 
-4. If you encounter conflicts between CUDA and ROCm, you may need to uninstall one before installing the other. The installation script will guide you through this process.
+Ensure LM Studio is running on the default port 1234.
 
-5. If the copy script fails, you can manually copy the files from the source directory to your current project directory.
+Download at least one model within LM Studio.
 
-6. If you're having issues with model selection:
-   - Make sure LM Studio is running and the server is started
-   - Check that you can access the LM Studio API at http://localhost:1234/v1/models in your browser
-   - If using a remote LM Studio server, ensure the server is accessible from your machine
-   - If the model dropdown is blank, try clicking the "Refresh Models" button
-   - If models still don't appear, check the Debug tab for error messages
-   - The application will use placeholder models if it can't connect to LM Studio
+Go to the "Local Server" tab and click "Start Server".
 
-## Contributing
+By default, DoBA connects to http://localhost:1234. To change this, edit the launcher scripts and modify the following variables:
 
-Contributions to the DoBA project are welcome! Please feel free to submit pull requests or open issues for any bugs or feature requests.
+Bash
 
-## License
+# export LMSTUDIO_API="http://your-lmstudio-server:1234/v1/chat/completions"
+# export LMSTUDIO_MODELS_API="http://your-lmstudio-server:1234/v1/models"
+Troubleshooting
+Check Python version:
 
-This project is licensed under the terms included in the LICENSE file.
+Bash
+
+python3 --version
+Check Permissions: Ensure you have write access to the project directory.
+
+GPU Detection:
+
+NVIDIA: Run nvidia-smi.
+
+AMD: Run rocminfo.
+
+Conflicts: If you face conflicts between CUDA and ROCm, uninstall the previous drivers before switching.
+
+Model Selection Issues:
+
+Ensure the LM Studio server is started.
+
+Verify access to http://localhost:1234/v1/models in your browser.
+
+If the model dropdown is empty, click "Refresh Models" or check the Debug tab for errors.
+
+Contributing
+Contributions are welcome. Feel free to submit pull requests or report bugs and feature requests via the issue tracker.
